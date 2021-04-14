@@ -1,0 +1,9 @@
+FROM mhart/alpine-node:14.16.1
+
+WORKDIR /app
+COPY . .
+RUN npm ci
+RUN mkdir -p /app/jwts
+RUN cp ./admin.jwt /app/jwts/admin.jwt
+RUN cp ./user.jwt /app/jwts/user.jwt
+CMD [ "node", "app.js" ]

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<%~ includeFile('./fragments/header.eta', 'Login') %>
+<body>
+    <div class="main container-fluid">
+        <div class="row justify-content-md-center align-items-center d-flex h-100">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title"><%= it.title %></h5>
+                    <h6 class="card-subtitle mb-2 text-muted"><%= it.subtitle || '' %></h6>
+                    <form action="/login" enctype="application/x-www-form-urlencoded" method="POST"> 
+                        <input id="email" class="form-control" name="email" type="text" placeholder="Email" />
+                        <br/>
+                        <input id="passwd" class="form-control" name="password" type="password" placeholder="Password" />
+                        <br/>
+                        <div style="display: flex; justify-content: space-between;">
+                            <a href="/register">Register</a>
+                            <button class="btn btn-primary" type="submit" id='login-button'>Login</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%~ includeFile('./fragments/libs.eta') %>
+</body>
+</html>

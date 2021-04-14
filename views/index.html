@@ -1,0 +1,30 @@
+<html>
+    <%~ includeFile('./fragments/header.eta', 'Config') %>
+    <body>
+        <div class="main container">
+            <div class="row justify-content-md-center align-items-center d-flex">
+                <div class='col'>
+                    <h1>Pick JWT</h1><br>
+                </div>
+            </div>
+            <div class="row justify-content-md-center d-flex">
+                <div class='col m-4'>
+                    <form>
+                        <% for (let item of it.files) { %>
+                            <input type='radio' name='jwts' id='<%= item %>'><%= item %></input><br>
+                        <% } %>
+                    </form>
+                </div>
+                <div class='col m-4'>
+                    <form>
+                        <textarea id='jwt-contents' cols=40 rows=20></textarea>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.querySelectorAll("[type=radio]").forEach(item => item.addEventListener('click', event => console.log(event.target.id)));
+        </script>
+        <%~ includeFile('./fragments/libs.eta') %>
+    </body>
+</html>
