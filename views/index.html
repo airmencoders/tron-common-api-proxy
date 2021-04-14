@@ -59,7 +59,7 @@
                         <% if (item !== 'istio-system') { %>
                             <input 
                                 type='button' 
-                                class='btn btn-danger' 
+                                class='btn btn-danger btn-sm' 
                                 id='delete_<%= item %>'
                                 value='X' 
                                 <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
@@ -194,24 +194,14 @@
                 document.getElementById('delete-jwt-form').submit();
         });
 
-        const addClickListener = (item) => {
-            items.addEventListener('click', event => {
-                document.getElementById('delete-ns-name').value = event.target.id.split('_')[1];
-                document.getElementById('delete-namespace-form').submit();
+        if (document.querySelectorAll("[id^='delete_']")) {
+            document.querySelectorAll("[id^='delete_']").forEach(item => {
+                item.addEventListener('click', event => {
+                    document.getElementById('delete-ns-name').value = event.target.id.split('_')[1];
+                    document.getElementById('delete-namespace-form').submit();
+                });
             });
         }
-
-        if (document.querySelector("[id^='delete_']")) {
-            const items = document.querySelector("[id^='delete_']");
-            if (typeof items == "object") {
-                for (let i = 0; i < items.length; i++) addClickListener(items[i]);
-            }
-            else {
-                console.log('erer')
-                items.addClickListener(items);
-            }
-        }
-
     </script>
     <%~ includeFile('./fragments/libs.eta') %>
 </body>
