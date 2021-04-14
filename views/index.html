@@ -1,30 +1,219 @@
 <html>
-    <%~ includeFile('./fragments/header.eta', 'Config') %>
-    <body>
-        <div class="main container">
-            <div class="row justify-content-md-center align-items-center d-flex">
-                <div class='col'>
-                    <h1>Pick JWT</h1><br>
-                </div>
-            </div>
-            <div class="row justify-content-md-center d-flex">
-                <div class='col m-4'>
-                    <form>
-                        <% for (let item of it.files) { %>
-                            <input type='radio' name='jwts' id='<%= item %>'><%= item %></input><br>
+<%~ includeFile('./fragments/header.eta', 'Config') %>
+
+<body>
+    <script>
+        const jwtObjs = {
+        <% for (let field in it.contents) {  %>  
+            '<%~ field %>' : <%~ it.contents[field] %>,
+        <% } %>
+        };
+    </script>
+    <div class="main container">      
+        <div class="row justify-content-md-center">
+            <div class='col'>
+                <form id='toggle-proxy-form' method='post' action="/toggle-proxy">
+                    <div class='form-check'>
+                        <input class='form-check-input' 
+                            type='checkbox' 
+                            name='toggle-proxy' 
+                            id='toggle-proxy'         
+                            <%= it.proxyEnabled === 'true' ? 'checked' : '' %>
+                        />
+                        <label for='toggle-proxy'>Enable Proxy?</label>
+                    </div>
+                </form>
+                <br>
+                <form id='change-jwt-form' method='post' action="/change-jwt">
+                    <h4><u>JWTs</u></h4>
+                    <% for (let item of it.files) { %>
+                    <div class='form-check'>
+                        <input class='form-check-input' 
+                            type='radio' 
+                            name='jwts' 
+                            id='<%= item %>' 
+                            value='<%= item %>' 
+                            <%= it.activeJwt === item ? 'checked' : '' %>
+                            <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
+                        />
+                        <label for='<%= item %>' class="form-check-label"><%= item %></label>
+                        <br>
+                    </div>
+                    <% } %>
+                </form>
+                <br>
+                <form id='change-namespace-form' method='post' action="/change-ns">
+                    <h4><u>App Namespace</u></h4>
+                    <% for (let item of it.namespaces) { %>
+                    <div class='form-check'>
+                        <input class='form-check-input' 
+                            type='radio' 
+                            name='namespaces' 
+                            id='<%= item %>' 
+                            value='<%= item %>' 
+                            <%= it.activeNamespace === item ? 'checked' : '' %>
+                            <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
+                        />
+                        <label for='<%= item %>' class="form-check-label"><%= item %></label>
+                        &nbsp;
+                        <% if (item !== 'istio-system') { %>
+                            <input 
+                                type='button' 
+                                class='btn btn-danger' 
+                                id='delete_<%= item %>'
+                                value='X' 
+                                <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
+                            />
                         <% } %>
+                        <br>
+                    </div>
+                    <% } %>
+                </form>
+                <form id='delete-namespace-form' method='post' action='/delete-ns'>
+                    <input type='hidden' name='ns-name' id='delete-ns-name' />
+                </form>
+                <br>
+                <form id='new-namespace-form' method='post' action='/new-ns'>
+                    <label for='new-ns-name'>New Namespace</label>
+                    <input 
+                        type='text'
+                        class='form-control'
+                        name='new-ns-name'
+                        id='new-ns-name' 
+                        <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
+                    />
+                    <br>
+                    <input
+                        type='submit'
+                        value='Add'
+                        class='btn btn-primary'
+                        <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
+                    />
+                </form>
+            </div>
+            <div class='col'>
+                <form id='jwt-edit-form' method='post' action='/save-jwt'>
+                    <label for='jwt-contents'>JWT Contents</label>
+                    <textarea 
+                        class="form-control"
+                        name='jwt-contents'
+                        id='jwt-contents'
+                        wrap=off
+                        cols=60
+                        rows=40
+                        <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
+                    >
+                    </textarea>
+                </form>
+                <br>
+                <div style='display: flex; justify-content: space-evenly;'>
+                    <input 
+                        type='button' 
+                        class='btn btn-primary'
+                        value='Save'
+                        id='save-jwt-button'
+                        <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
+                    />
+                    <form id='save-as-jwt-form' method='post' action='/save-as-jwt'>
+                        <input type='hidden' name='new-jwt-contents' id='new-jwt-contents' />
+                        <input type='hidden' name='new-jwt-name' id='new-jwt-name' />
+                        <input 
+                            type='button' 
+                            class='btn btn-primary'
+                            value='Save As..'
+                            id='save-as-jwt-button'
+                            <%= it.proxyEnabled === 'false' ? 'disabled' : '' %>
+                        />
                     </form>
-                </div>
-                <div class='col m-4'>
-                    <form>
-                        <textarea id='jwt-contents' cols=40 rows=20></textarea>
+                    <form id='delete-jwt-form' method='post' action='/delete-jwt'>
+                        <input type='hidden' name='jwt-name' id='jwt-name' />
+                        <input 
+                            type='button' 
+                            class='btn btn-danger'
+                            value='Delete'
+                            id='delete-jwt-button'
+                            <%= (it.activeJwt === 'admin.jwt' || it.proxyEnabled === 'false') ? 'disabled' : '' %>
+                        />
                     </form>
                 </div>
             </div>
         </div>
-        <script>
-            document.querySelectorAll("[type=radio]").forEach(item => item.addEventListener('click', event => console.log(event.target.id)));
-        </script>
-        <%~ includeFile('./fragments/libs.eta') %>
-    </body>
+    </div> 
+    <script>      
+        document.querySelectorAll("[type=radio][name=jwts")
+            .forEach(item => 
+                item.addEventListener('click', event => {
+                    document
+                        .getElementById('change-jwt-form')
+                        .submit();
+        }));
+
+        document.querySelectorAll("[type=radio][name=namespaces")
+            .forEach(item => 
+                item.addEventListener('click', event => {
+                    document
+                        .getElementById('change-namespace-form')
+                        .submit();
+        }));
+
+        // populate the textarea
+        document
+            .getElementById('jwt-contents')
+            .innerHTML = JSON.stringify(jwtObjs['<%= it.activeJwt %>'], null, '   ');
+
+        document
+            .getElementById('toggle-proxy')
+            .addEventListener('click', event => {
+                document.getElementById('toggle-proxy-form').submit();
+        });
+
+        document
+            .getElementById('save-jwt-button')
+            .addEventListener('click', event => {
+                document.getElementById('jwt-edit-form').submit();
+        });
+
+        document
+            .getElementById('save-as-jwt-button')
+            .addEventListener('click', event => {
+                document.getElementById('new-jwt-contents').value = document.getElementById('jwt-contents').innerHTML;
+                let name = prompt("Enter new JWT file's name: ");
+                if (name) {
+                    if (!name.match(/\.jwt$/)) {
+                        name += ".jwt";
+                    }
+                    document.getElementById('new-jwt-name').value = name;
+                    document.getElementById('save-as-jwt-form').submit();
+                }
+        });
+
+        document
+            .getElementById('delete-jwt-button')
+            .addEventListener('click', event => {
+                document.getElementById('jwt-name').value = '<%= it.activeJwt %>';
+                document.getElementById('delete-jwt-form').submit();
+        });
+
+        const addClickListener = (item) => {
+            items.addEventListener('click', event => {
+                document.getElementById('delete-ns-name').value = event.target.id.split('_')[1];
+                document.getElementById('delete-namespace-form').submit();
+            });
+        }
+
+        if (document.querySelector("[id^='delete_']")) {
+            const items = document.querySelector("[id^='delete_']");
+            if (typeof items == "object") {
+                for (let i = 0; i < items.length; i++) addClickListener(items[i]);
+            }
+            else {
+                console.log('erer')
+                items.addClickListener(items);
+            }
+        }
+
+    </script>
+    <%~ includeFile('./fragments/libs.eta') %>
+</body>
+
 </html>
